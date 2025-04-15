@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
+
 def load_and_process_data(uploaded_file):
-    """Hàm đọc và xử lý dữ liệu từ file"""
     try:
         if uploaded_file.name.endswith('.xlsx'):
-            df = pd.read_excel(uploaded_file)
+            df = pd.read_excel(uploaded_file, engine='openpyxl')  
         else:
             df = pd.read_csv(uploaded_file)
         df.columns = df.columns.str.strip().str.lower()
@@ -21,21 +21,30 @@ def load_and_process_data(uploaded_file):
         date_cols = [col for col in ['doc_date', 'delivery_date'] if col in df.columns]
         for col in date_cols:
             df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%Y-%m-%d')
+        df['source_file'] = uploaded_file.name 
         return df
     except Exception as e:
-        st.error(f"⛔ Lỗi khi đọc file: {str(e)}")
+        st.error(f"⛔ Lỗi khi đọc file {uploaded_file.name}: {str(e)}")
         return None
-uploaded_file = st.file_uploader("📤 Chọn file dữ liệu", type=["xlsx", "csv"])
 
-if uploaded_file is not None:
-    df = load_and_process_data(uploaded_file)
-    
-    if df is not None:
+uploaded_files = st.file_uploader("📤 Chọn một hoặc nhiều file dữ liệu", type=["xlsx", "csv"], accept_multiple_files=True)
+
+if uploaded_files:
+    all_data = []
+    for file in uploaded_files:
+        df = load_and_process_data(file)
+        if df is not None:
+            all_data.append(df)
+
+    if all_data:
+        df = pd.concat(all_data, ignore_index=True)
+
         if st.checkbox("👀 Hiển thị toàn bộ dữ liệu"):
             st.dataframe(df)
+
         st.subheader("🔍 Tìm kiếm thông tin")
         search_code = st.text_input("Nhập mã hàng cần tra cứu:")
-        
+
         if search_code:
             try:
                 filtered_data = df[df['material_code'].astype(str).str.strip() == search_code.strip()]
@@ -43,13 +52,12 @@ if uploaded_file is not None:
                 if not filtered_data.empty:
                     st.success(f"✅ Tìm thấy {len(filtered_data)} bản ghi cho mã hàng {search_code}")
                     cols_to_show = ['purchasing document', 'material_code', 'description', 
-                                   'quantity', 'supplier', 'doc_date', 'delivery_date']
+                                   'quantity', 'supplier', 'doc_date', 'delivery_date', 'source_file']
                     cols_to_show = [col for col in cols_to_show if col in df.columns]
                     
                     st.dataframe(filtered_data[cols_to_show].reset_index(drop=True))
                     
                     st.subheader("📊 Tổng hợp thông tin")
-                    
                     if 'quantity' in df.columns:
                         total_qty = filtered_data['quantity'].sum()
                         st.markdown(f"**Tổng số lượng cần giao:** {total_qty:,.0f}")
@@ -68,4 +76,4 @@ if uploaded_file is not None:
             except Exception as e:
                 st.error(f"⛔ Lỗi khi tìm kiếm: {str(e)}")
 else:
-    st.info("ℹ️ Vui lòng upload file dữ liệu để bắt đầu")
+    st.info("ℹ️ Vui lòng upload ít nhất 1 file dữ liệu để bắt đầu")
