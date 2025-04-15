@@ -1,16 +1,5 @@
 import streamlit as st
 import pandas as pd
-import tempfile
-import os
-
-uploaded_file = st.file_uploader("Chọn file")
-if uploaded_file:
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(uploaded_file.read())
-        file_path = tmp_file.name
-    
-    # Xử lý file...
-    os.unlink(file_path)
 st.title("📊 Bot Xử Lý Dữ Liệu Mua Hàng")
 st.markdown("""
 ### 🚀 Hướng dẫn sử dụng:
