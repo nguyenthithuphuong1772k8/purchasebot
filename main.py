@@ -11,13 +11,7 @@ if uploaded_file:
     
     # Xử lý file...
     os.unlink(file_path)  # Xóa file sau khi dùng
-st.title("📊 Bot Xử Lý Dữ Liệu Mua Hàng")
-st.markdown("""
-### 🚀 Hướng dẫn sử dụng:
-1. Upload file dữ liệu (Excel/CSV) với đầy đủ các cột
-2. Nhập mã hàng cần tra cứu (ví dụ: 4314857)
-3. Bot sẽ hiển thị đầy đủ thông tin liên quan
-""")
+
 def load_and_process_data(uploaded_file):
     """Hàm đọc và xử lý dữ liệu từ file"""
     try:
@@ -52,7 +46,7 @@ if uploaded_file is not None:
         if st.checkbox("👀 Hiển thị toàn bộ dữ liệu"):
             st.dataframe(df)
         st.subheader("🔍 Tìm kiếm thông tin")
-        search_code = st.text_input("Nhập mã hàng cần tra cứu (ví dụ: 4314857):")
+        search_code = st.text_input("Nhập mã hàng cần tra cứu:")
         
         if search_code:
             try:
