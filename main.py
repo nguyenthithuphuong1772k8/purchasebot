@@ -9,7 +9,7 @@ def load_and_process_data(uploaded_file):
             df = pd.read_csv(uploaded_file)
         df.columns = df.columns.str.strip().str.lower()
         column_mapping = {
-            'purchasing document': 'code',
+            'purchasing document': 'purchasing_document',
             'material': 'material_code',
             'document date': 'doc_date',
             'supplier/supplying plant': 'supplier',
@@ -42,7 +42,7 @@ if uploaded_file is not None:
                 
                 if not filtered_data.empty:
                     st.success(f"✅ Tìm thấy {len(filtered_data)} bản ghi cho mã hàng {search_code}")
-                    cols_to_show = ['code', 'material_code', 'description', 
+                    cols_to_show = ['purchasing document', 'material_code', 'description', 
                                    'quantity', 'supplier', 'doc_date', 'delivery_date']
                     cols_to_show = [col for col in cols_to_show if col in df.columns]
                     
